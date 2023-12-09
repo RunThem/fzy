@@ -1,6 +1,7 @@
 #ifndef TTY_H
 #define TTY_H TTY_H
 
+#include <stdio.h>
 #include <termios.h>
 
 typedef struct {

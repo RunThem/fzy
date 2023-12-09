@@ -36,12 +36,23 @@ static void draw_match(tty_interface_t* state, const char* choice, int selected)
   options_t* options = state->options;
   char* search       = state->last_search;
 
+  size_t idx        = 0;
+  regmatch_t rmatch = {0};
+
   int n = strlen(search);
   size_t positions[MATCH_MAX_LEN];
   for (int i = 0; i < n + 1 && i < MATCH_MAX_LEN; i++)
     positions[i] = -1;
 
-  score_t score = match_positions(search, choice, &positions[0]);
+  if (state->choices->filter && !regexec(state->choices->filter, choice, 1, &rmatch, 0)) {
+    idx = rmatch.rm_eo;
+  }
+
+  score_t score = match_positions(search, &choice[idx], &positions[0]);
+
+  for (size_t i = 0; positions[i] != (size_t)-1; i++) {
+    positions[i] += idx;
+  }
 
   if (options->show_scores) {
     if (score == SCORE_MIN) {

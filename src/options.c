@@ -16,6 +16,7 @@ static const char* usage_str =
     " -q, --query=QUERY        Use QUERY as the initial search string\n"
     " -e, --show-matches=QUERY Output the sorted matches of QUERY\n"
     " -t, --tty=TTY            Specify file to use as TTY device (default /dev/tty)\n"
+    " -f, --prefix=REGEX       Filter the previous part of the character(regular expression)\n"
     " -s, --show-scores        Show the scores of each match\n"
     " -0, --read-null          Read input delimited by ASCII NUL characters\n"
     " -j, --workers NUM        Use NUM workers for searching. (default is # of CPUs)\n"
@@ -33,6 +34,7 @@ static struct option longopts[] = {
     {"lines",        required_argument, NULL, 'l'},
     {"tty",          required_argument, NULL, 't'},
     {"prompt",       required_argument, NULL, 'p'},
+    {"prefix",       required_argument, NULL, 'f'},
     {"show-scores",  no_argument,       NULL, 's'},
     {"read-null",    no_argument,       NULL, '0'},
     {"version",      no_argument,       NULL, 'v'},
@@ -48,6 +50,7 @@ void options_init(options_t* options) {
   options->benchmark       = 0;
   options->filter          = NULL;
   options->init_search     = NULL;
+  options->prefix_reg      = NULL;
   options->show_scores     = 0;
   options->scrolloff       = 1;
   options->tty_filename    = DEFAULT_TTY;
@@ -62,7 +65,7 @@ void options_parse(options_t* options, int argc, char* argv[]) {
   options_init(options);
 
   int c;
-  while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:i", longopts, NULL)) != -1) {
+  while ((c = getopt_long(argc, argv, "vhs0e:q:l:t:p:j:if:", longopts, NULL)) != -1) {
     switch (c) {
       case 'v':
         printf("%s " VERSION " © 2014-2018 John Hawthorn\n", argv[0]);
@@ -78,6 +81,9 @@ void options_parse(options_t* options, int argc, char* argv[]) {
         break;
       case 'e':
         options->filter = optarg;
+        break;
+      case 'f':
+        options->prefix_reg = optarg;
         break;
       case 'b':
         if (optarg) {

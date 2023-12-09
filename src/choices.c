@@ -110,6 +110,15 @@ void choices_init(choices_t* c, options_t* options) {
   c->capacity = c->size = 0;
   choices_resize(c, INITIAL_CHOICE_CAPACITY);
 
+  c->filter = NULL;
+  if (options->prefix_reg) {
+    c->filter = safe_realloc(NULL, sizeof(regex_t));
+    if (regcomp(c->filter, options->prefix_reg, REG_EXTENDED)) {
+      free(c->filter);
+      c->filter = NULL;
+    }
+  }
+
   if (options->workers) {
     c->worker_count = options->workers;
   } else {
@@ -131,6 +140,11 @@ void choices_destroy(choices_t* c) {
   free(c->results);
   c->results   = NULL;
   c->available = c->selection = 0;
+
+  regfree(c->filter);
+
+  free(c->filter);
+  c->filter = NULL;
 }
 
 void choices_add(choices_t* c, const char* choice) {
@@ -224,6 +238,9 @@ static void* choices_search_worker(void* data) {
 
   size_t start, end;
 
+  size_t idx        = 0;
+  regmatch_t rmatch = {0};
+
   for (;;) {
     worker_get_next_batch(job, &start, &end);
 
@@ -232,7 +249,12 @@ static void* choices_search_worker(void* data) {
     }
 
     for (size_t i = start; i < end; i++) {
-      if (has_match(job->search, c->strings[i])) {
+      idx = 0;
+      if (c->filter && !regexec(c->filter, c->strings[i], 1, &rmatch, 0)) {
+        idx = rmatch.rm_eo;
+      }
+
+      if (has_match(job->search, &c->strings[i][idx])) {
         result->list[result->size].str   = c->strings[i];
         result->list[result->size].score = match(job->search, c->strings[i]);
         result->size++;

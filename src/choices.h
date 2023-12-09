@@ -5,6 +5,7 @@
 #include "options.h"
 
 #include <stdio.h>
+#include <regex.h>
 
 struct scored_result {
   score_t score;
@@ -25,6 +26,8 @@ typedef struct {
   size_t selection;
 
   unsigned int worker_count;
+
+  regex_t* filter;
 } choices_t;
 
 void choices_init(choices_t* c, options_t* options);
