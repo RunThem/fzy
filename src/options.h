@@ -14,6 +14,7 @@ typedef struct {
   char input_delimiter;
   int show_info;
   const char* prefix_reg;
+  int prefix_space;
 } options_t;
 
 void options_init(options_t* options);

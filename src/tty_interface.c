@@ -34,6 +34,7 @@ static void clear(tty_interface_t* state) {
 static void draw_match(tty_interface_t* state, const char* choice, int selected) {
   tty_t* tty         = state->tty;
   options_t* options = state->options;
+  choices_t* c       = state->choices;
   char* search       = state->last_search;
 
   size_t idx        = 0;
@@ -44,7 +45,7 @@ static void draw_match(tty_interface_t* state, const char* choice, int selected)
   for (int i = 0; i < n + 1 && i < MATCH_MAX_LEN; i++)
     positions[i] = -1;
 
-  if (state->choices->filter && !regexec(state->choices->filter, choice, 1, &rmatch, 0)) {
+  if (c->filter && !regexec(c->filter, choice, 1, &rmatch, 0)) {
     idx = rmatch.rm_eo;
   }
 
@@ -71,6 +72,11 @@ static void draw_match(tty_interface_t* state, const char* choice, int selected)
 
   tty_setnowrap(tty);
   for (size_t i = 0, p = 0; choice[i] != '\0'; i++) {
+    if (i == idx && (size_t)options->prefix_space > idx) {
+      for (size_t j = 0; j < (size_t)options->prefix_space - idx; j++) {
+        tty_printf(tty, " ");
+      }
+    }
     if (positions[p] == i) {
       tty_setfg(tty, TTY_COLOR_HIGHLIGHT);
       p++;

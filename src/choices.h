@@ -4,8 +4,8 @@
 #include "match.h"
 #include "options.h"
 
-#include <stdio.h>
 #include <regex.h>
+#include <stdio.h>
 
 struct scored_result {
   score_t score;
