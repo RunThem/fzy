@@ -1,7 +1,7 @@
 VERSION=1.0
 
 CPPFLAGS=-DVERSION=\"${VERSION}\" -D_GNU_SOURCE
-CFLAGS+=-MD -Wall -Wextra -g -std=c99 -O3 -pedantic -Ideps -Werror=vla
+CFLAGS+=-MD -Wall -Wextra -g -std=c99 -O3 -pedantic -Ideps -Werror=vla -DTTY_SELECTION_UNDERLINE
 PREFIX?=/usr/local
 MANDIR?=$(PREFIX)/share/man
 BINDIR?=$(PREFIX)/bin
