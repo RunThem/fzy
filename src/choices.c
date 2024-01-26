@@ -1,5 +1,4 @@
 #include "choices.h"
-
 #include "match.h"
 #include "options.h"
 
@@ -141,7 +140,9 @@ void choices_destroy(choices_t* c) {
   c->results   = NULL;
   c->available = c->selection = 0;
 
-  regfree(c->filter);
+  if (c->filter != NULL) {
+    regfree(c->filter);
+  }
 
   free(c->filter);
   c->filter = NULL;
